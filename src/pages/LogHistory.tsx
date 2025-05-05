@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { AlertComponent } from "@/components/AlertComponent";
@@ -12,17 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { 
-  Calendar,
-  CalendarCell,
-  CalendarGrid,
-  CalendarHeader,
-  CalendarHeadCell, 
-  CalendarMonthDelta,
-  CalendarMonthValue, 
-  CalendarShow,
-  useCalendar 
-} from "@/components/ui/calendar";
+import { Calendar } from "@/components/ui/calendar";
 import { Car, Filter, Clock } from "lucide-react";
 import {
   Popover,
@@ -240,6 +229,7 @@ const LogHistory = () => {
                   selected={dateFilter}
                   onSelect={setDateFilter}
                   initialFocus
+                  className="pointer-events-auto"
                 />
               </PopoverContent>
             </Popover>
