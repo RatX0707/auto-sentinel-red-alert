@@ -15,23 +15,47 @@ export const ControlPanel = ({ isRunning, onStartStop }: ControlPanelProps) => {
   const handleToggle = async () => {
     setIsProcessing(true);
     
-    // Simulate processing delay
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    const newState = !isRunning;
-    onStartStop(newState);
+    try {
+      // Configuration for your local Python server
+      // Change this URL to match your Python server's address
+      const apiUrl = 'http://localhost:5000';
+      
+      const endpoint = isRunning ? '/stop_detection' : '/start_detection';
+      
+      // Call the Python server
+      const response = await fetch(`${apiUrl}${endpoint}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Server responded with status: ${response.status}`);
+      }
+      
+      // Update state if successful
+      const newState = !isRunning;
+      onStartStop(newState);
 
-    if (newState) {
-      toast.success("Vehicle Attack Detection Engine Started", {
-        description: "Monitoring CAN bus traffic for intrusions",
+      // Show appropriate notification
+      if (newState) {
+        toast.success("Vehicle Attack Detection Engine Started", {
+          description: "Monitoring CAN bus traffic for intrusions",
+        });
+      } else {
+        toast.info("Vehicle Attack Detection Engine Stopped", {
+          description: "CAN bus monitoring paused",
+        });
+      }
+    } catch (error) {
+      console.error("Failed to communicate with Python backend:", error);
+      toast.error("Failed to connect to detection engine", {
+        description: "Please check if the Python server is running",
       });
-    } else {
-      toast.info("Vehicle Attack Detection Engine Stopped", {
-        description: "CAN bus monitoring paused",
-      });
+    } finally {
+      setIsProcessing(false);
     }
-    
-    setIsProcessing(false);
   };
 
   return (
