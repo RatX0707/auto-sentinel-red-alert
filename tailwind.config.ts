@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -61,6 +62,24 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
+				},
+				alert: {
+					replay: '#ea384c',
+					unknown: '#a4133c',
+					payload: '#ff8c42',
+					dos: '#d00000',
+					base: '#e5383b'
+				},
+				redTheme: {
+					100: '#ffcdd2',
+					200: '#ef9a9a',
+					300: '#e57373',
+					400: '#ef5350',
+					500: '#ea384c',
+					600: '#e53935',
+					700: '#d32f2f',
+					800: '#c62828',
+					900: '#b71c1c',
 				}
 			},
 			borderRadius: {
@@ -70,25 +89,32 @@ export default {
 			},
 			keyframes: {
 				'accordion-down': {
-					from: {
-						height: '0'
-					},
-					to: {
-						height: 'var(--radix-accordion-content-height)'
-					}
+					from: { height: '0' },
+					to: { height: 'var(--radix-accordion-content-height)' },
 				},
 				'accordion-up': {
-					from: {
-						height: 'var(--radix-accordion-content-height)'
-					},
-					to: {
-						height: '0'
-					}
+					from: { height: 'var(--radix-accordion-content-height)' },
+					to: { height: '0' },
+				},
+				'pulse-danger': {
+					'0%, 100%': { opacity: '1' },
+					'50%': { opacity: '0.7' },
+				},
+				'slide-in-right': {
+					'0%': { transform: 'translateX(100%)' },
+					'100%': { transform: 'translateX(0)' },
+				},
+				'glow': {
+					'0%, 100%': { boxShadow: '0 0 10px rgba(234, 56, 76, 0.7)' },
+					'50%': { boxShadow: '0 0 20px rgba(234, 56, 76, 0.9)' },
 				}
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
-				'accordion-up': 'accordion-up 0.2s ease-out'
+				'accordion-up': 'accordion-up 0.2s ease-out',
+				'pulse-danger': 'pulse-danger 2s infinite ease-in-out',
+				'slide-in': 'slide-in-right 0.3s forwards',
+				'glow': 'glow 2s infinite ease-in-out',
 			}
 		}
 	},
