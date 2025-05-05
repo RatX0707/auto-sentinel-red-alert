@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from "react";
-import { AlertTriangle, BellRing, Bug, CircleX } from "lucide-react";
+import { AlertTriangle, BellRing, Bug, Car, CircleX } from "lucide-react";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 
 interface AlertProps {
@@ -9,9 +9,17 @@ interface AlertProps {
   message: string;
   canId: string;
   details?: string;
+  severity?: "low" | "medium" | "high" | "critical";
 }
 
-export const AlertComponent = ({ timestamp, type, message, canId, details }: AlertProps) => {
+export const AlertComponent = ({ 
+  timestamp, 
+  type, 
+  message, 
+  canId, 
+  details,
+  severity 
+}: AlertProps) => {
   const [isNew, setIsNew] = useState(true);
   
   useEffect(() => {
@@ -22,40 +30,58 @@ export const AlertComponent = ({ timestamp, type, message, canId, details }: Ale
     return () => clearTimeout(timer);
   }, []);
 
-  const getAlertClass = () => {
-    let baseClass = "alert-card ";
-    
+  // Determine the alert type and severity
+  const getAlertData = () => {
     if (type.includes("Replay")) {
-      return baseClass + "alert-replay";
+      return {
+        className: "alert-replay",
+        icon: <BellRing className="h-5 w-5 text-alert-replay" />,
+        severity: severity || "medium",
+      };
     } else if (type.includes("Unknown")) {
-      return baseClass + "alert-unknown";
+      return {
+        className: "alert-unknown",
+        icon: <CircleX className="h-5 w-5 text-alert-unknown" />,
+        severity: severity || "high",
+      };
     } else if (type.includes("Unexpected")) {
-      return baseClass + "alert-payload";
+      return {
+        className: "alert-payload",
+        icon: <AlertTriangle className="h-5 w-5 text-alert-payload" />,
+        severity: severity || "medium",
+      };
     } else if (type.includes("DoS")) {
-      return baseClass + "alert-dos";
+      return {
+        className: "alert-dos",
+        icon: <Bug className="h-5 w-5 text-alert-dos" />,
+        severity: severity || "critical",
+      };
     }
     
-    return baseClass;
+    return {
+      className: "",
+      icon: <Car className="h-5 w-5 text-muted-foreground" />,
+      severity: severity || "low",
+    };
   };
 
-  const getAlertIcon = () => {
-    if (type.includes("Replay")) {
-      return <BellRing className="h-5 w-5 text-alert-replay" />;
-    } else if (type.includes("Unknown")) {
-      return <CircleX className="h-5 w-5 text-alert-unknown" />;
-    } else if (type.includes("Unexpected")) {
-      return <AlertTriangle className="h-5 w-5 text-alert-payload" />;
-    } else if (type.includes("DoS")) {
-      return <Bug className="h-5 w-5 text-alert-dos" />;
+  const alertData = getAlertData();
+  
+  // Get color based on severity
+  const getSeverityColor = () => {
+    switch(alertData.severity) {
+      case "low": return "bg-alert-low/10 border-alert-low";
+      case "medium": return "bg-alert-medium/10 border-alert-medium";
+      case "high": return "bg-alert-high/10 border-alert-high";
+      case "critical": return "bg-alert-critical/10 border-alert-critical";
+      default: return "bg-black/40";
     }
-    
-    return <AlertTriangle className="h-5 w-5" />;
   };
 
   return (
-    <Alert className={`${getAlertClass()} ${isNew ? 'animate-pulse-danger' : ''}`}>
+    <Alert className={`alert-card ${alertData.className} ${getSeverityColor()} ${isNew ? 'animate-pulse-danger' : ''}`}>
       <div className="flex items-center gap-2">
-        {getAlertIcon()}
+        {alertData.icon}
         <div>
           <AlertTitle className="text-sm font-medium text-redTheme-300 flex items-center gap-2">
             {type} - CAN ID: {canId}

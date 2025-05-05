@@ -1,4 +1,6 @@
 
+@import url('https://fonts.googleapis.com/css2?family=Racing+Sans+One&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -76,4 +78,30 @@
   .alert-dos {
     @apply border-l-alert-dos bg-black/40;
   }
+
+  .auto-astra-title {
+    @apply font-racing-sans text-2xl sm:text-3xl md:text-4xl tracking-wider;
+    text-shadow: 0 0 10px rgba(234, 56, 76, 0.7);
+  }
+
+  .oscillator {
+    height: 40px;
+    background: linear-gradient(
+      to right,
+      rgba(0,0,0,0) 0%,
+      rgba(234, 56, 76, 0.6) 50%,
+      rgba(0,0,0,0) 100%
+    );
+    animation: oscillate 3s infinite ease-in-out;
+  }
+
+  @keyframes oscillate {
+    0%, 100% { opacity: 0.3; transform: scaleY(0.5); }
+    50% { opacity: 1; transform: scaleY(1); }
+  }
+}
+
+@keyframes gauge-fill {
+  0% { stroke-dasharray: 0 100; }
+  100% { stroke-dasharray: var(--gauge-value) 100; }
 }

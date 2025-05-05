@@ -19,6 +19,9 @@ export default {
 			}
 		},
 		extend: {
+			fontFamily: {
+				'racing-sans': ['"Racing Sans One"', 'cursive'],
+			},
 			colors: {
 				border: 'hsl(var(--border))',
 				input: 'hsl(var(--input))',
@@ -68,7 +71,11 @@ export default {
 					unknown: '#a4133c',
 					payload: '#ff8c42',
 					dos: '#d00000',
-					base: '#e5383b'
+					base: '#e5383b',
+					low: '#90be6d',
+					medium: '#f9c74f',
+					high: '#f3722c',
+					critical: '#f94144'
 				},
 				redTheme: {
 					100: '#ffcdd2',
@@ -107,6 +114,14 @@ export default {
 				'glow': {
 					'0%, 100%': { boxShadow: '0 0 10px rgba(234, 56, 76, 0.7)' },
 					'50%': { boxShadow: '0 0 20px rgba(234, 56, 76, 0.9)' },
+				},
+				'oscillate': {
+					'0%, 100%': { transform: 'scaleY(0.3)', opacity: '0.3' },
+					'50%': { transform: 'scaleY(1)', opacity: '1' },
+				},
+				'gauge-anim': {
+					'0%': { strokeDasharray: '0 100' },
+					'100%': { strokeDasharray: 'var(--gauge-value, 75) 100' },
 				}
 			},
 			animation: {
@@ -115,6 +130,8 @@ export default {
 				'pulse-danger': 'pulse-danger 2s infinite ease-in-out',
 				'slide-in': 'slide-in-right 0.3s forwards',
 				'glow': 'glow 2s infinite ease-in-out',
+				'oscillate': 'oscillate 3s infinite ease-in-out',
+				'gauge-fill': 'gauge-anim 2s ease-out forwards',
 			}
 		}
 	},
