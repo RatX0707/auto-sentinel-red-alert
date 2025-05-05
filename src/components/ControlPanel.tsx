@@ -17,17 +17,20 @@ export const ControlPanel = ({ isRunning, onStartStop }: ControlPanelProps) => {
     
     try {
       // Configuration for your local Python server
-      // Change this URL to match your Python server's address
       const apiUrl = 'http://localhost:5000';
       
       const endpoint = isRunning ? '/stop_detection' : '/start_detection';
       
-      // Call the Python server
+      // Call the Python server which will execute ids_engine.py
       const response = await fetch(`${apiUrl}${endpoint}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
+        body: JSON.stringify({ 
+          script_path: './ids_engine.py',
+          log_file: './normal2_can.log'
+        }),
       });
       
       if (!response.ok) {
@@ -41,7 +44,7 @@ export const ControlPanel = ({ isRunning, onStartStop }: ControlPanelProps) => {
       // Show appropriate notification
       if (newState) {
         toast.success("Vehicle Attack Detection Engine Started", {
-          description: "Monitoring CAN bus traffic for intrusions",
+          description: "Monitoring CAN bus traffic for intrusions using ids_engine.py",
         });
       } else {
         toast.info("Vehicle Attack Detection Engine Stopped", {

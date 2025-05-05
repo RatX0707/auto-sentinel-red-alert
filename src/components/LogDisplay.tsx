@@ -24,10 +24,56 @@ export const LogDisplay = ({ isRunning, onNewAlert }: LogDisplayProps) => {
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const alertProcessedRef = useRef(false);
 
-  // Sample log data based on the provided format
+  // Determine severity based on alert type
+  const getSeverity = (type: string): "low" | "medium" | "high" | "critical" => {
+    if (type.includes("DoS")) return "critical";
+    if (type.includes("Unknown")) return "high";
+    if (type.includes("Replay") || type.includes("Unexpected")) return "medium";
+    return "low";
+  };
+
+  // Fetch alerts from the backend
+  const fetchAlerts = async () => {
+    if (!isRunning) return;
+    
+    try {
+      const response = await fetch('http://localhost:5000/get_alerts');
+      
+      if (!response.ok) {
+        throw new Error(`Failed to fetch alerts: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      
+      if (data.alerts && Array.isArray(data.alerts)) {
+        const formattedLogs = data.alerts.map((alert: any, index: number) => ({
+          id: Date.now() + index,
+          timestamp: alert.timestamp,
+          type: alert.type,
+          message: alert.message,
+          canId: alert.canId,
+          severity: getSeverity(alert.type)
+        }));
+        
+        if (formattedLogs.length > 0) {
+          setLogs(formattedLogs);
+          
+          // Notify about the newest alert
+          if (formattedLogs[0] && !alertProcessedRef.current) {
+            onNewAlert(formattedLogs[0].type);
+            alertProcessedRef.current = true;
+          }
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching alerts:", error);
+    }
+  };
+
+  // Sample log data as fallback (will be used if backend is not available)
   const sampleLogs = [
     {
-      timestamp: "2025-05-04 12:59:01",
+      timestamp: "2025-05-05 12:59:01",
       type: "Replay Attack Detected",
       message: "CAN ID 244 flooded with 19B/188 in the last 5 seconds",
       canId: "244",
@@ -87,49 +133,14 @@ export const LogDisplay = ({ isRunning, onNewAlert }: LogDisplayProps) => {
   // Update logs when the detection engine is running
   useEffect(() => {
     if (isRunning) {
-      // Initial log - use a timeout to avoid triggering alerts during render
-      setTimeout(() => {
-        const getRandomLog = () => {
-          const randomLog = sampleLogs[Math.floor(Math.random() * sampleLogs.length)];
-          return {
-            id: Date.now(),
-            ...randomLog,
-          };
-        };
-  
-        if (!alertProcessedRef.current) {
-          const newLog = getRandomLog();
-          setLogs((prevLogs) => {
-            const updatedLogs = [newLog, ...prevLogs].slice(0, 100);
-            // Use the ref to avoid state updates during render
-            if (!alertProcessedRef.current) {
-              onNewAlert(newLog.type);
-              alertProcessedRef.current = true;
-            }
-            return updatedLogs;
-          });
-        }
-      }, 100);
-
-      // Set up interval to add logs periodically
+      // Initial fetch
+      fetchAlerts();
+      
+      // Set up interval to fetch logs periodically
       intervalRef.current = window.setInterval(() => {
         alertProcessedRef.current = false;
-        
-        const getRandomLog = () => {
-          const randomLog = sampleLogs[Math.floor(Math.random() * sampleLogs.length)];
-          return {
-            id: Date.now(),
-            ...randomLog,
-          };
-        };
-        
-        const newLog = getRandomLog();
-        setLogs((prevLogs) => {
-          const updatedLogs = [newLog, ...prevLogs].slice(0, 100);
-          onNewAlert(newLog.type);
-          return updatedLogs;
-        });
-      }, 3000);  // Add a new log every 3 seconds
+        fetchAlerts();
+      }, 3000);  // Fetch logs every 3 seconds
     } else if (intervalRef.current) {
       clearInterval(intervalRef.current);
       intervalRef.current = null;
@@ -142,18 +153,22 @@ export const LogDisplay = ({ isRunning, onNewAlert }: LogDisplayProps) => {
         intervalRef.current = null;
       }
     };
-  }, [isRunning, onNewAlert, sampleLogs]);
+  }, [isRunning]);
+
+  // If no logs from backend, use sample data for demo purposes
+  const displayLogs = logs.length > 0 ? logs : 
+    (isRunning ? sampleLogs.map(log => ({ ...log, id: Date.now() })) : []);
 
   return (
     <div className="bg-secondary rounded-md p-1 h-full">
       <ScrollArea className="h-[calc(100vh-520px)] pr-4" ref={scrollAreaRef}>
         <div className="space-y-2">
-          {logs.length === 0 ? (
+          {displayLogs.length === 0 ? (
             <div className="text-center py-10 text-muted-foreground">
               No alerts detected. Press the Start button to begin monitoring.
             </div>
           ) : (
-            logs.map((log) => (
+            displayLogs.map((log) => (
               <AlertComponent
                 key={log.id}
                 timestamp={log.timestamp}
